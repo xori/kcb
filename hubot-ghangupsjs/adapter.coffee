@@ -25,11 +25,15 @@ class GHangups extends Adapter
   send: (envelope, strings...) ->
     self = @
     @robot.logger.info "Send"
+    isLink = /^((https?)?(?:\:\/\/)(?:[\da-z\.-]+)\.(?:[a-z\.]{2,6})(?:[\/\w \.-]*)*\/?(?:\?[\da-z]*=[\S]*)?)$/i
     strings.forEach (message) ->
       message = message.split('\n')
       body = new Client.MessageBuilder()
       message.forEach (m) ->
-        body = body.text(m).linebreak()
+        if m.match(isLink)
+          body = body.link(m, m).linebreak()
+        else
+          body = body.text(m).linebreak()
       self.client.sendchatmessage envelope.user.id, body.toSegments()
 
   reply: (envelope, strings...) ->
