@@ -1,0 +1,15 @@
+{
+  "name": "hubot-ghangupsjs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "adapter",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "hangupsjs": "^0.9.1",
+    "q": "^1.4.1"
+  }
+}
