@@ -8,23 +8,36 @@ class GHangups extends Adapter
   constructor: ->
     super
     self = @
-    @creds = -> auth:Client.authStdin
-    @bld = new Client.MessageBuilder()
+    @robot.logger.info "HUBOT_GHANGUPS_CREDS: " + process.env.HUBOT_GHANGUPS_CREDS
+    @creds = -> auth: if process.env.HUBOT_GHANGUPS_CREDS then Q(process.env.HUBOT_GHANGUPS_CREDS) else Client.authStdin
+    @phonebook = {}
+    @myself = {}
+
     @client = new Client()
     @client.loglevel 'info'
     @client.connect(@creds).then =>
       self.emit "connected"
-      self.client.sendchatmessage 'UgxL8S7vM8LtAuFJZcl4AaABAQ',
-        [[0, "Hello"]]
+      self.client.getselfinfo().then (data) ->
+        self.myself.id = data.self_entity.id.chat_id
+        self.myself.name = data.self_entity.properties.display_name
+        console.log("Got Myself")
 
   send: (envelope, strings...) ->
-    @robot.logger.info "Send", envelope, strings
+    self = @
+    @robot.logger.info "Send"
     strings.forEach (message) ->
-      client.sendchatmessage envelope.user.id, message
+      message = message.split('\n')
+      body = new Client.MessageBuilder()
+      message.forEach (m) ->
+        body = body.text(m).linebreak()
+      self.client.sendchatmessage envelope.user.id, body.toSegments()
 
   reply: (envelope, strings...) ->
-    @robot.logger.info "Reply", envelope, strings
+    @robot.logger.info "Reply"
     @send envelope, strings
+
+  isMe: (id) ->
+    id == @myself.id
 
   run: ->
     self = @
@@ -40,6 +53,8 @@ class GHangups extends Adapter
 
     self.client.on 'chat_message', (res) ->
       if res.chat_message?.message_content?
+        return if self.isMe(res.sender_id.chat_id)
+
         body = ""
         res.chat_message.message_content.segment
           .forEach (i) ->
@@ -47,7 +62,7 @@ class GHangups extends Adapter
         user = new User res.conversation_id.id, chat_id: res.sender_id.chat_id
         message = new TextMessage user, body, res.event_id
         self.robot.receive message
-        console.log(body, message, !!self.robot.receive)
+        console.log(res.conversation_id.id, res.sender_id.chat_id, body)
       else
         console.log("unknown message type", res);
     return

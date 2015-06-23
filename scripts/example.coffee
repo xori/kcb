@@ -20,14 +20,14 @@ module.exports = (robot) ->
   #   else
   #     res.reply "Opening #{doorType} doors"
   #
-  # robot.hear /I like pie/i, (res) ->
-  #   res.emote "makes a freshly baked pie"
-  #
-  # lulz = ['lol', 'rofl', 'lmao']
-  #
-  # robot.respond /lulz/i, (res) ->
-  #   res.send res.random lulz
-  #
+  robot.hear /I like pie/i, (res) ->
+    res.emote "makes a freshly baked pie"
+
+
+  lulz = ['lol', 'rofl', 'lmao']
+  robot.hear /lulz/i, (res) ->
+    res.send res.random lulz
+
   # robot.topic (res) ->
   #   res.send "#{res.message.text}? That's a Paddlin'"
   #
@@ -82,13 +82,12 @@ module.exports = (robot) ->
   #   robot.messageRoom room, "I have a secret: #{secret}"
   #
   #   res.send 'OK'
-  #
-  # robot.error (err, res) ->
-  #   robot.logger.error "DOES NOT COMPUTE"
-  #
-  #   if res?
-  #     res.reply "DOES NOT COMPUTE"
-  #
+
+  robot.error (err, res) ->
+    # robot.logger.error "DOES NOT COMPUTE"
+    if res?
+      res.reply "DOES NOT COMPUTE"
+
   # robot.respond /have a soda/i, (res) ->
   #   # Get number of sodas had (coerced to a number).
   #   sodasHad = robot.brain.get('totalSodas') * 1 or 0
