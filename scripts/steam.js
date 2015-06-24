@@ -28,7 +28,7 @@ module.exports = function (robot) {
       })
   })
 
-  robot.hear(/^what'?s (on sale|featured|steam)\??/i, function(res) {
+  robot.hear(/^what'?s (on sale|featured|on steam)\??/i, function(res) {
     robot.http('http://store.steampowered.com/api/featured/')
     .get()(function(err,_, body) {
       if(err) {
