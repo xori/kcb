@@ -2,7 +2,7 @@ var fs = require('fs-extra');
 
 var brain = null;
 var brain_location = process.env.HUBOT_BRAIN_LOCATION || './data/brain.json';
-//fs.ensureFileSync(brain_location);
+fs.ensureFileSync(brain_location);
 try {
   // fetch from file this should only happen once because after the first time the
   //   require is cached.
