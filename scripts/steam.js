@@ -28,4 +28,24 @@ module.exports = function (robot) {
       })
   })
 
+  robot.respond(/what'?s (on sale|featured)\??/i, function(res) {
+    robot.http('http://store.steampowered.com/api/featured/')
+    .get()(function(err,_, body) {
+      if(err) {
+        res.send("Encountered an error :(\n", err);
+      }
+      var data = JSON.parse(body);
+      var result = "";
+      data.large_capsules.forEach(function(featured) {
+        if(res.match[1] === 'on sale' && featured.discount_percent === 0) return;
+        result += featured.name + ' - $' + (featured.final_price / 100.0) + ' (' + featured.discount_percent + '%)\n'
+      })
+      data.featured_win.forEach(function(featured) {
+        if(res.match[1] === 'on sale' && featured.discount_percent === 0) return;
+        result += featured.name + ' - $' + (featured.final_price / 100.0) + ' (' + featured.discount_percent + '%)\n'
+      })
+      res.send(result.trim());
+    });
+  })
+
 }
