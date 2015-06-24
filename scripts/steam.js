@@ -29,7 +29,7 @@ module.exports = function (robot) {
   })
 
   robot.hear(/^what'?s (on sale|featured|on steam)\??/i, function(res) {
-    robot.http('http://store.steampowered.com/api/featured/')
+    robot.http('http://store.steampowered.com/api/featured?cc=CA')
     .get()(function(err,_, body) {
       if(err) {
         res.send("Encountered an error :(\n", err);
@@ -38,11 +38,13 @@ module.exports = function (robot) {
       var result = "";
       data.large_capsules.forEach(function(featured) {
         if(res.match[1] === 'on sale' && featured.discount_percent === 0) return;
-        result += featured.name + ' - $' + (featured.final_price / 100.0) + ' (' + featured.discount_percent + '%)\n'
+        result += featured.name + ' - $' + (featured.final_price / 100.0) +
+          ' (' + featured.discount_percent + '%)\n'
       })
       data.featured_win.forEach(function(featured) {
         if(res.match[1] === 'on sale' && featured.discount_percent === 0) return;
-        result += featured.name + ' - $' + (featured.final_price / 100.0) + ' (' + featured.discount_percent + '%)\n'
+        result += featured.name + ' - $' + (featured.final_price / 100.0) +
+          ' (' + featured.discount_percent + '%)\n'
       })
       res.send(result.trim());
     });
