@@ -24,7 +24,7 @@ module.exports = function (robot) {
         } else {
           result += "Couldn't find any games called '" + res.match[1] + "'"
         }
-        res.send(result);
+        res.send(result.trim());
       })
   })
 

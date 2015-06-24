@@ -5,6 +5,8 @@
   "author": "Evan Verworn <evan@verworn.net>",
   "description": "A simple helpful robot for your Company",
   "dependencies": {
+    "chrono-node": "^1.0.6",
+    "fs-extra": "^0.20.1",
     "hubot": "^2.13.2",
     "hubot-diagnostics": "0.0.1",
     "hubot-google-images": "^0.1.5",
