@@ -7,6 +7,7 @@
   "dependencies": {
     "chrono-node": "^1.0.6",
     "fs-extra": "^0.20.1",
+    "htmlparser": "^1.7.7",
     "hubot": "^2.13.2",
     "hubot-diagnostics": "0.0.1",
     "hubot-google-images": "^0.1.5",
@@ -15,7 +16,9 @@
     "hubot-maps": "0.0.2",
     "hubot-pugme": "^0.1.0",
     "hubot-rules": "^0.1.1",
-    "hubot-scripts": "^2.16.1"
+    "hubot-scripts": "^2.16.1",
+    "soupselect": "^0.2.0",
+    "validator": "^3.40.1"
   },
   "engines": {
     "node": "0.10.x"
