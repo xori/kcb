@@ -2,6 +2,8 @@
 
 Client = require 'hangupsjs'
 Q      = require 'q'
+FS     = require 'fs-extra'
+HTTP   = require 'http'
 
 class GHangups extends Adapter
 
@@ -27,6 +29,28 @@ class GHangups extends Adapter
     @robot.logger.info "Send"
     isLink = /^((https?)?(?:\:\/\/)(?:[\da-z\.-]+)\.(?:[a-z\.]{2,6})(?:[\/\w \.-]*)*\/?(?:\?[\da-z]*=[\S]*)?)$/i
     strings.forEach (message) ->
+      # image attachment
+      #TODO split this to a new function
+      imgAtt = Q.Promise (rs) ->
+        imgReg = /(http[^\s]+\.(?:png|gif|jpg))/i
+        match = message.match imgReg
+        return rs undefined unless match
+        console.log "found image #{match[1]}"
+        FS.ensureFileSync "./data/uploads/file.jpg"
+        file = FS.createWriteStream "./data/uploads/file.jpg"
+        HTTP.get match[1], (response) ->
+          response.pipe(file)
+          console.log "downloading image"
+          file.on 'finish', ->
+            file.close ->
+              #TODO should be able to get the image path here.
+              console.log "uploading image"
+              self.client.uploadimage('./data/uploads/file.jpg')
+              .then (id) -> rs id
+        .on 'error', (err) ->
+          console.error "image error #{err}"
+          rs undefined
+        return
       message = message.split('\n')
       body = new Client.MessageBuilder()
       message.forEach (m) ->
@@ -34,8 +58,9 @@ class GHangups extends Adapter
           body = body.link(m, m).linebreak()
         else
           body = body.text(m).linebreak()
-      self.client.sendchatmessage envelope.user.id, body.toSegments()
-      console.log "kcb: #{strings.join '\n'}"
+      imgAtt.then (imgid) ->
+        self.client.sendchatmessage envelope.user.id, body.toSegments(), imgid
+        console.log "kcb: #{strings.join '\n'}"
 
   reply: (envelope, strings...) ->
     @robot.logger.info "Reply"
