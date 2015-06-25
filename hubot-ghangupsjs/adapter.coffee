@@ -35,6 +35,7 @@ class GHangups extends Adapter
         else
           body = body.text(m).linebreak()
       self.client.sendchatmessage envelope.user.id, body.toSegments()
+      console.log "kcb: #{strings.join '\n'}"
 
   reply: (envelope, strings...) ->
     @robot.logger.info "Reply"
@@ -58,15 +59,33 @@ class GHangups extends Adapter
     self.client.on 'chat_message', (res) ->
       if res.chat_message?.message_content?
         return if self.isMe(res.sender_id.chat_id)
-
         body = ""
         res.chat_message.message_content.segment
           .forEach (i) ->
             body += i.text
-        user = new User res.conversation_id.id, chat_id: res.sender_id.chat_id
-        message = new TextMessage user, body, res.event_id
-        self.robot.receive message
-        console.log(res.conversation_id.id, res.sender_id.chat_id, body)
+
+        # create user
+        Q.Promise (rs) ->
+          cached_user = self.phonebook[res.sender_id.chat_id]
+          return rs(cached_user) if cached_user
+          # not in cache need to fetch.
+          console.log("user not in phonebook, performing lookup.")
+          self.client.getentitybyid([ res.sender_id.chat_id ]).then (data) ->
+            u = new User res.conversation_id.id,
+              chat_id: data.entities[0].id.chat_id
+              display_name: data.entities[0].properties.display_name
+              name: data.entities[0].properties.first_name
+              photo: data.entities[0].properties.photo_url
+            console.log(u)
+            self.phonebook[u.chat_id] = u
+          , (data) ->
+            console.error "couldn't lookup user", data
+          .then (user) ->
+            rs user
+        .then (user) ->
+          message = new TextMessage user, body, res.event_id
+          self.robot.receive message
+          console.log "#{user.name}: #{body}"
       else
         console.log("unknown message type", res);
     return

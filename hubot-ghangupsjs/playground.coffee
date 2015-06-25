@@ -18,6 +18,6 @@ client.on 'chat_message', (ev) ->
 # connect and post a message.
 # the id is a conversation id.
 client.connect(creds).then ->
-    client.getselfinfo().then (data) ->
-      console.log(data);
+    client.getentitybyid(['107485400031369455948']).then (data) ->
+      console.log(data.entities[0].properties);
 .done()
