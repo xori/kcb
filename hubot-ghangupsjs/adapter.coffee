@@ -34,7 +34,7 @@ class GHangups extends Adapter
       imgAtt = Q.Promise (rs) ->
         imgReg = /(http[^\s]+\.(?:png|gif|jpg))/i
         match = message.match imgReg
-        return rs undefined unless match
+        return rs null unless match
         console.log "found image #{match[1]}"
         FS.ensureFileSync "./data/uploads/file.jpg"
         file = FS.createWriteStream "./data/uploads/file.jpg"
@@ -49,9 +49,10 @@ class GHangups extends Adapter
               .then (id) -> rs id
         .on 'error', (err) ->
           console.error "image error #{err}"
-          rs undefined
+          rs null
         return
-      message = message.split('\n')
+      message = message.toString().split('\n')
+      console.log message
       body = new Client.MessageBuilder()
       message.forEach (m) ->
         if m.match(isLink)
@@ -64,7 +65,8 @@ class GHangups extends Adapter
 
   reply: (envelope, strings...) ->
     @robot.logger.info "Reply"
-    @send envelope, strings
+    for str in strings
+      @send envelope, "#{str}"
 
   isMe: (id) ->
     id == @myself.id
