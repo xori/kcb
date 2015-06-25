@@ -93,6 +93,8 @@ class GHangups extends Adapter
         # create user
         Q.Promise (rs) ->
           cached_user = self.phonebook[res.sender_id.chat_id]
+          #TODO always override the room (currently id)
+          cached_user.id = res.conversation_id.id
           return rs(cached_user) if cached_user
           # not in cache need to fetch.
           console.log("user not in phonebook, performing lookup.")
@@ -107,8 +109,6 @@ class GHangups extends Adapter
           , (data) ->
             console.error "couldn't lookup user", data
           .then (user) ->
-            #TODO always override the room (currently id)
-            user.id = res.conversation_id.id
             rs user
         .then (user) ->
           message = new TextMessage user, body, res.event_id
