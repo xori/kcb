@@ -52,7 +52,6 @@ class GHangups extends Adapter
           rs null
         return
       message = message.toString().split('\n')
-      console.log message
       body = new Client.MessageBuilder()
       message.forEach (m) ->
         if m.match(isLink)
