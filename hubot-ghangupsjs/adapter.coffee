@@ -107,6 +107,8 @@ class GHangups extends Adapter
           , (data) ->
             console.error "couldn't lookup user", data
           .then (user) ->
+            #TODO always override the room (currently id)
+            user.id = res.conversation_id.id
             rs user
         .then (user) ->
           message = new TextMessage user, body, res.event_id
