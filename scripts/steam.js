@@ -36,18 +36,21 @@ module.exports = function (robot) {
       }
       var data = JSON.parse(body);
       var result = "";
+      var somethings_on_sale = false;
       data.large_capsules.forEach(function(featured) {
         if(res.match[1] === 'on sale' && featured.discount_percent === 0) return;
+        else somethings_on_sale = true;
         result += featured.name + ' - $' + (featured.final_price / 100.0) +
           ' (' + featured.discount_percent + '%)\n'
+
       })
       data.featured_win.forEach(function(featured) {
         if(res.match[1] === 'on sale' && featured.discount_percent === 0) return;
+        else somethings_on_sale = true;
         result += featured.name + ' - $' + (featured.final_price / 100.0) +
           ' (' + featured.discount_percent + '%)\n'
       })
-      if(data.featured_win.length === 0 && data.large_capsules.length === 0
-        && res.match[1] === 'on sale') {
+      if(!somethings_on_sale && res.match[1] === 'on sale') {
           result += "Nothing featured is on sale."
       }
       res.send(result.trim());
