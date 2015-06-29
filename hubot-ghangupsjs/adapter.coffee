@@ -93,9 +93,10 @@ class GHangups extends Adapter
         # create user
         Q.Promise (rs) ->
           cached_user = self.phonebook[res.sender_id.chat_id]
-          #TODO always override the room (currently id)
-          cached_user.id = res.conversation_id.id
-          return rs(cached_user) if cached_user
+          if cached_user
+            #TODO always override the room (currently id)
+            cached_user.id = res.conversation_id.id
+            return rs(cached_user)
           # not in cache need to fetch.
           console.log("user not in phonebook, performing lookup.")
           self.client.getentitybyid([ res.sender_id.chat_id ]).then (data) ->
@@ -113,7 +114,7 @@ class GHangups extends Adapter
         .then (user) ->
           message = new TextMessage user, body, res.event_id
           self.robot.receive message
-          console.log "#{user.name}: #{body}"
+          console.log "[#{user.id}] #{user.name}: #{body}"
       else
         console.log("unknown message type", res);
     return

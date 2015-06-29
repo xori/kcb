@@ -46,6 +46,10 @@ module.exports = function (robot) {
         result += featured.name + ' - $' + (featured.final_price / 100.0) +
           ' (' + featured.discount_percent + '%)\n'
       })
+      if(data.featured_win.length === 0 && data.large_capsules.length === 0
+        && res.match[1] === 'on sale') {
+          result += "Nothing featured is on sale."
+      }
       res.send(result.trim());
     });
   })
