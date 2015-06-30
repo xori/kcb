@@ -4,6 +4,7 @@ Client = require 'hangupsjs'
 Q      = require 'q'
 FS     = require 'fs-extra'
 HTTP   = require 'http'
+HTTPS   = require 'https'
 
 class GHangups extends Adapter
 
@@ -32,21 +33,28 @@ class GHangups extends Adapter
       # image attachment
       #TODO split this to a new function
       imgAtt = Q.Promise (rs) ->
-        imgReg = /(http[^\s]+\.(?:png|gif|jpg))/i
+        imgReg = /^(http[^\s]+\.(?:png|gif|jpg))/i
         match = message.match imgReg
         return rs null unless match
         console.log "found image #{match[1]}"
-        FS.ensureFileSync "./data/uploads/file.jpg"
-        file = FS.createWriteStream "./data/uploads/file.jpg"
-        HTTP.get match[1], (response) ->
+        filename = "./data/uploads/" + (new Date().getTime()) + ".jpg"
+        file = FS.createWriteStream filename
+        http = null
+        if match[1].indexOf("https") == 0
+          http = HTTPS
+        else
+          http = HTTP
+        http.get match[1], (response) ->
           response.pipe(file)
           console.log "downloading image"
           file.on 'finish', ->
             file.close ->
               #TODO should be able to get the image path here.
               console.log "uploading image"
-              self.client.uploadimage('./data/uploads/file.jpg')
-              .then (id) -> rs id
+              self.client.uploadimage(filename)
+              .then (id) ->
+                rs id
+                FS.delete filename
         .on 'error', (err) ->
           console.error "image error #{err}"
           rs null
@@ -59,7 +67,10 @@ class GHangups extends Adapter
         else
           body = body.text(m).linebreak()
       imgAtt.then (imgid) ->
-        self.client.sendchatmessage envelope.user.id, body.toSegments(), imgid
+        if imgid == null
+          self.client.sendchatmessage envelope.user.id, body.toSegments()
+        else
+          self.client.sendchatmessage envelope.user.id, null, imgid
         console.log "kcb: #{strings.join '\n'}"
 
   reply: (envelope, strings...) ->
