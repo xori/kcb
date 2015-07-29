@@ -85,13 +85,14 @@ class GHangups extends Adapter
     self = @
     @robot.logger.info "Run"
 
-    self.client.on 'connect_failed', ->
-      Q.Promise (rs) ->
-        setTimeout rs, 3000 # back off for 3 seconds
-      .then ->
-        self.client.connect(self.creds)
-      .then ->
-        self.emit "connected"
+    # I think when the connection fails it keeps working?
+    # self.client.on 'connect_failed', ->
+    #   Q.Promise (rs) ->
+    #     setTimeout rs, 3000 # back off for 3 seconds
+    #   .then ->
+    #     self.client.connect(self.creds)
+    #   .then ->
+    #     self.emit "connected"
 
     self.client.on 'chat_message', (res) ->
       if res.chat_message?.message_content?
